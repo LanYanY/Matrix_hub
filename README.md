@@ -5,7 +5,9 @@ Matrix_hub
 矩阵运算库--C语言
 ---------------------------------------
 2023.4.19 加了两个函数进去
+
 Matrix *M_mean(Matrix *_mat, int d);	//计算平均
+
 Matrix *M_cat(Matrix *_mat_a, Matrix *_mat_b, int d);	//矩阵拼接
 
 A lib for Matrix Operations in C language. (矩阵运算库--C语言) 
