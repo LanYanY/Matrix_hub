@@ -9,6 +9,7 @@ Matrix_hub
 Matrix *M_mean(Matrix *_mat, int d);	//计算平均
 
 Matrix *M_cat(Matrix *_mat_a, Matrix *_mat_b, int d);	//矩阵拼接
+
 ---------------------------------------
 A lib for Matrix Operations in C language. (矩阵运算库--C语言) 
 
