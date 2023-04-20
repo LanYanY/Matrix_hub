@@ -34,6 +34,7 @@
 #include <string.h>
 #include "state.h"
 
+#define MAX_LINE_SIZE 2048	//M_read_csv函数用，如果输入的行很长需要把数值改大
 
 typedef struct _Matrix {
     /*Store Matrix
@@ -196,6 +197,9 @@ Matrix *M_mean(Matrix *_mat, int d);	//计算平均
 
 Matrix *M_cat(Matrix *_mat_a, Matrix *_mat_b, int d);	//矩阵拼接
 
+int M_write_csv(Matrix *_mat_csv,FILE *_file_csv);	//将矩阵输出到csv文件
+
+Matrix * M_read_csv(FILE *_file_csv);    //从csv文件输入矩阵
 
 void progress_bar(int count, int total);
 
@@ -1869,5 +1873,89 @@ Matrix *M_cat(Matrix *_mat_a, Matrix *_mat_b, int d) {//矩阵拼接,0：按行�
     } else {
 		printf(M_mul_001);
 	}
+    return _mat_result;
+}
+int M_write_csv(Matrix *_mat_csv,FILE *_file_csv)    //将矩阵输出到csv文件
+{
+
+    if (_file_csv == NULL) 
+    {
+        printf(M_csv_028);
+        return -1;
+    }
+
+    int row = _mat_csv->row;
+    int column = _mat_csv->column;
+    int i,j;
+    for (i = 0; i < row; i++)
+    {
+        for(j = 0; j < column - 1; j++)
+        {
+            fprintf(_file_csv, "%lf,",_mat_csv->data[i * column + j]);
+        }
+        fprintf(_file_csv, "%lf\n",_mat_csv->data[i * column + j + 1]);
+    }
+    return 0;
+}
+
+Matrix * M_read_csv(FILE *_file_csv)    //从csv文件输入矩阵
+{
+    Matrix *_mat_result = NULL;
+    char *ptr;
+    char strLine[MAX_LINE_SIZE];
+    int row = 0;
+    int column = 0;
+	
+    if (_file_csv == NULL) 
+    {
+        printf(M_csv_028);
+        return _mat_result;
+    }
+
+    // 计算csv文件中的总行数
+    fseek(_file_csv,0,SEEK_SET);
+    while (fgets(strLine, MAX_LINE_SIZE, _file_csv))
+    {
+        row++;
+    }
+
+    // 计算csv文件中的总列数
+    fseek(_file_csv,0,SEEK_SET);
+    if (fgets(strLine, MAX_LINE_SIZE, _file_csv))
+    {
+        ptr = strtok(strLine,",");
+        while(ptr != NULL)
+        {
+            ptr = strtok(NULL, ",");
+            column++;
+        }
+    }
+	
+    fseek(_file_csv,0,SEEK_SET);
+	
+    // 开辟空间
+    MATRIX_TYPE *_data = (MATRIX_TYPE *) malloc((row * column) * sizeof(MATRIX_TYPE));
+
+    int i,j;
+	
+    // 读取数据
+    for (i = 0; i < row; i++)
+    { 
+        j = 0;
+        if(fgets(strLine,MAX_LINE_SIZE,_file_csv))
+        {
+            ptr = strtok(strLine,",");  //返回字符数组中字符‘,’之前的字符，剩下的保留到静态数组中（此方法vs认为不安全）
+            //可以尝试使用strtok_s替换
+            while(ptr!=NULL)
+            {
+                _data[i * column + j] = atof(ptr);     //将字符转换为double类型数据并保存到动态数组中
+                j++;
+                ptr = strtok(NULL,",");                //将从文件中读取的当前行剩余字符数组，读取字符‘,’前面的字节
+            }
+        }
+    }
+
+    _mat_result = Matrix_gen(row, column, _data);
+
     return _mat_result;
 }
