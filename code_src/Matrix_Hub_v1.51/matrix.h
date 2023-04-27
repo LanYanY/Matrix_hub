@@ -1893,7 +1893,7 @@ int M_write_csv(Matrix *_mat_csv,FILE *_file_csv)    //将矩阵输出到csv文�
         {
             fprintf(_file_csv, "%lf,",_mat_csv->data[i * column + j]);
         }
-        fprintf(_file_csv, "%lf\n",_mat_csv->data[i * column + j + 1]);
+        fprintf(_file_csv, "%lf\n",_mat_csv->data[i * column + j]);
     }
     return 0;
 }
